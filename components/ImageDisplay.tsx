@@ -2,7 +2,8 @@ import React from 'react';
 import { GardenStage } from '../types';
 
 interface ImageDisplayProps {
-  imageUrl: string | null;
+  // imageUrl will now always be a string, not null.
+  imageUrl: string;
   stage: GardenStage;
   isLoading: boolean;
   onImageLoad: () => void;
@@ -20,15 +21,15 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({ imageUrl, stage, isL
                 </svg>
               </div>
             )}
-            {imageUrl && (
-                <img
-                    key={stage} // Use stage as key to force re-render on change
-                    src={imageUrl}
-                    alt={`A visual representation of a ${stage} DreamGarden`}
-                    className={`w-full h-full object-cover rounded-2xl shadow-lg transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-                    onLoad={onImageLoad}
-                />
-            )}
+            {/* The conditional wrapper is removed as imageUrl is never null. */}
+            {/* The key is changed to imageUrl to ensure a re-render when the source changes. */}
+            <img
+                key={imageUrl}
+                src={imageUrl}
+                alt={`A visual representation of a ${stage} DreamGarden`}
+                className={`w-full h-full object-cover rounded-2xl shadow-lg transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                onLoad={onImageLoad}
+            />
         </div>
     </div>
   );

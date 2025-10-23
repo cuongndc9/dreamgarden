@@ -1,22 +1,37 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GardenStage } from './types';
-import { GARDEN_SEARCH_TERMS } from './constants';
+import { GARDEN_IMAGE_URLS } from './constants';
 import { GardenSelector } from './components/GardenSelector';
 import { ImageDisplay } from './components/ImageDisplay';
+import { GardenDescription } from './components/GardenDescription';
+import { generateGardenDescription } from './services/geminiService';
 
 const App: React.FC = () => {
   const [gardenStage, setGardenStage] = useState<GardenStage>(GardenStage.DEVELOPING);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [imageUrl, setImageUrl] = useState<string>(GARDEN_IMAGE_URLS[gardenStage]);
+  const [isLoadingImage, setIsLoadingImage] = useState(true);
+  const [description, setDescription] = useState('');
+  const [isLoadingDescription, setIsLoadingDescription] = useState(true);
 
   useEffect(() => {
-    // Now we construct a URL to fetch a random image from Unsplash.
-    setIsLoading(true);
-    const terms = GARDEN_SEARCH_TERMS[gardenStage];
-    // We add a random number to the URL to ensure we get a new image
-    // every time the stage changes, bypassing browser cache for the same URL.
-    const url = `https://source.unsplash.com/1024x768/?${terms}&sig=${Math.random()}`;
-    setImageUrl(url);
+    setIsLoadingImage(true);
+    const newUrl = GARDEN_IMAGE_URLS[gardenStage];
+    setImageUrl(newUrl);
+
+    const fetchDescription = async () => {
+      setIsLoadingDescription(true);
+      try {
+        const desc = await generateGardenDescription(gardenStage);
+        setDescription(desc);
+      } catch (error) {
+        console.error("Failed to generate description:", error);
+        setDescription("A quiet stillness settles over the garden, waiting for a new story to be told.");
+      } finally {
+        setIsLoadingDescription(false);
+      }
+    };
+
+    fetchDescription();
   }, [gardenStage]);
 
   const handleSelectStage = (stage: GardenStage) => {
@@ -26,7 +41,7 @@ const App: React.FC = () => {
   };
   
   const handleImageLoad = useCallback(() => {
-    setIsLoading(false);
+    setIsLoadingImage(false);
   }, []);
 
   return (
@@ -51,8 +66,12 @@ const App: React.FC = () => {
         <ImageDisplay 
           imageUrl={imageUrl}
           stage={gardenStage}
-          isLoading={isLoading}
+          isLoading={isLoadingImage}
           onImageLoad={handleImageLoad}
+        />
+        <GardenDescription
+          isLoading={isLoadingDescription}
+          description={description}
         />
       </main>
 
