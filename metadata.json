@@ -1,0 +1,5 @@
+{
+  "name": "DreamGarden",
+  "description": "A virtual garden that visually represents your sleep habits. Watch your garden evolve from a neglected patch to a thriving paradise as your sleep consistency improves. This app uses AI to generate beautiful, evolving images of your personal DreamGarden.",
+  "requestFramePermissions": []
+}
